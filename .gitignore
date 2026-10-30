@@ -1,0 +1,10 @@
+# reference photos are copyrighted product imagery - never commit
+images/
+# per-bottle working directories (specs, factories, renders) are regenerable
+runs/
+# local scratch
+_sheet.html
+batch-results.json
+diag.json
+__pycache__/
+node_modules/

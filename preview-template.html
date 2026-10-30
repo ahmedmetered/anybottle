@@ -1,0 +1,29 @@
+<!DOCTYPE html><html><head><meta charset="utf-8">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/","three/examples/jsm/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+<style>body{margin:0;background:#C8CDD6}canvas{display:block}</style>
+</head><body>
+<script type="module">
+import { __MODEL_FN____LIGHTS_IMPORT__ } from './src/createObjectModel.bundle.mjs';
+import * as THREE from 'three';
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xC8CDD6);
+const camera = new THREE.PerspectiveCamera(33, 1.0, .1, 40);
+__LIGHTS_ADD__
+const model = __MODEL_FN__({ qualityPriority: 'reference-fidelity' });
+scene.add(model);
+const box = new THREE.Box3();
+model.traverse(o => { if (o.isMesh) { o.geometry.computeBoundingBox(); const b = o.geometry.boundingBox.clone().applyMatrix4(o.matrixWorld); box.union(b); } });
+const size = new THREE.Vector3(); box.getSize(size);
+const center = new THREE.Vector3(); box.getCenter(center);
+const fitDist = (size.y * 0.5) / Math.tan((33 * Math.PI / 180) / 2) / 0.96;
+camera.position.set(center.x, center.y, center.z + fitDist);
+camera.lookAt(center);
+camera.updateProjectionMatrix();
+scene.add(new THREE.AmbientLight(0xffffff, 1.6));
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setSize(1000, 1000);
+document.body.appendChild(renderer.domElement);
+window.__scene = scene;
+window.__camera = camera;
+setInterval(() => renderer.render(scene, camera), 350);
+</script></body></html>
