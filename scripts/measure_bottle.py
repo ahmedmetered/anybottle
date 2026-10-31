@@ -173,7 +173,8 @@ def main():
              "dimensions": {"width": 1, "height": 1, "depth": 1},
              "attachment": {"parentId": "root", "parentSocket": "base-plate", "contactType": "overlap",
                             "overlap": .02, "gapTolerance": .005, "localStart": [0, 0, 0], "localEnd": [0, TOTAL, 0]},
-             "materialRefs": ["body-glass"], "localFeatures": [],
+             "material": None,
+        "materialRefs": ["body-glass"], "localFeatures": [],
              "colorMaterialRecipe": {"dominantAlbedo": hex_to_rgba(body_hex), "secondaryAlbedo": hex_to_rgba(ink_hex),
                                      "materialClass": "glass", "materialClassConfidence": .9},
              "actionProfile": {"motion": "static-prop", "pivots": [], "colliders": []},
@@ -187,7 +188,8 @@ def main():
                             "overlap": .02, "gapTolerance": .005,
                             "localStart": [0, body_top_frac*TOTAL - TOTAL*0.02, 0],
                             "localEnd": [0, body_top_frac*TOTAL + TOTAL*0.02, 0]},
-             "materialRefs": ["collar-metal"], "localFeatures": [],
+             "material": None,
+        "materialRefs": ["collar-metal"], "localFeatures": [],
              "colorMaterialRecipe": {"dominantAlbedo": hex_to_rgba(collar_hex), "secondaryAlbedo": hex_to_rgba(ink_hex),
                                      "materialClass": "metal", "materialClassConfidence": .85},
              "actionProfile": {"motion": "static-prop", "pivots": [], "colliders": []}, "notes": "collar band"
@@ -200,7 +202,8 @@ def main():
                             "overlap": .03, "gapTolerance": .005,
                             "localStart": [0, body_top_frac*TOTAL, 0],
                             "localEnd": [0, min(TOTAL, body_top_frac*TOTAL + cap_h*scale), 0]},
-             "materialRefs": ["cap-material"], "localFeatures": [],
+             "material": None,
+        "materialRefs": ["cap-material"], "localFeatures": [],
              "colorMaterialRecipe": {"dominantAlbedo": hex_to_rgba(cap_hex), "secondaryAlbedo": hex_to_rgba(ink_hex),
                                      "materialClass": "plastic", "materialClassConfidence": .8},
              "actionProfile": {"motion": "static-prop", "pivots": [], "colliders": []}, "notes": "measured cap"
@@ -212,7 +215,8 @@ def main():
              "attachment": {"parentId": "body", "parentSocket": "front-face", "contactType": "overlap",
                             "overlap": .005, "gapTolerance": .002,
                             "localStart": [0, body_top_frac*TOTAL*0.36, 0], "localEnd": [0, body_top_frac*TOTAL*0.56, 0]},
-             "materialRefs": ["print-ink"], "localFeatures": [],
+             "material": None,
+        "materialRefs": ["print-ink"], "localFeatures": [],
              "colorMaterialRecipe": {"dominantAlbedo": hex_to_rgba(ink_hex), "secondaryAlbedo": hex_to_rgba(body_hex),
                                      "materialClass": "plastic", "materialClassConfidence": .7},
              "actionProfile": {"motion": "static-prop", "pivots": [], "colliders": []},
@@ -289,6 +293,9 @@ def main():
             spec.setdefault(k, copy.deepcopy(v))
     spec.pop('lookDevPasses', None)
     spec['reviewHistory'] = []
+    for c in spec['componentTree']:
+        if c.get('materialRefs'):
+            c['material'] = c['materialRefs'][0]
     json.dump(spec, open(out, 'w', encoding='utf-8'), indent=2, ensure_ascii=False)
     print('spec written:', out)
     print('measured: body_w(units)=', body_width_units, 'cap_h(units)=', round(cap_h*scale, 3),
