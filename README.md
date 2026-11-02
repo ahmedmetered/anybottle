@@ -4,7 +4,7 @@ Turn a product photo of a bottle into a quality-gated procedural Three.js model,
 
 The method is reconstruction-by-code: no photogrammetry, no mesh extraction, no downloaded assets. The silhouette is measured from the photo, the spec is authored by a script, and the [img2threejs](https://github.com/img2threejs/img2threejs) pipeline gates the result before it ships.
 
-**Status:** the pilot bottle reached silhouette IoU 0.80 against its reference within two automatic correction iterations, from nothing but the photo. 6 of 40 bottles are through the blockout pass; the rest are grinding through the same loop.
+**Status:** the pilot bottle reached silhouette IoU 0.80 against its reference within two automatic correction iterations, from nothing but the photo. 39 of 40 bottles of the first production run are through the pipeline and live — every result on [Perfume Finder](https://ahmedmetered.github.io/perfume-finder/) renders its own measured factory at runtime; the one reference-blocked bottle keeps its documented procedural fallback.
 
 ## How it works
 
@@ -41,6 +41,9 @@ python -I scripts/batch_pipeline.py bottle-id-1 bottle-id-2     # measure, valid
 node scripts/capture.mjs http://localhost:8792/<id>/preview.html runs/<id>/render-blockout.png 3000
 node scripts/capture.mjs http://localhost:8792/<id>/preview-stripped.html runs/<id>/render-blockout-mapstripped.png 3000
 python scripts/iterate.py <id> "$(cat runs/<id>/diag.json)"     # bbox-measured correction pass
+# ship to a static site (importmap + native ESM):
+cp runs/<id>/src/createObjectModel.ts site/js/models/<id>.ts
+python -I scripts/rebuild_bundles.py --src-dir site/js/models --out-dir site/js/models --registry site/js/models/registry.js
 ```
 
 Gate targets before a bottle ships: silhouette IoU >= 0.85, aspect delta <= 0.05, scale delta <= 0.08 against the reference.

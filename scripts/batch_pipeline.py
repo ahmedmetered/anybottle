@@ -99,6 +99,19 @@ def main():
             f"const model = {model_fn}({{ qualityPriority: 'reference-fidelity' }});\n"
             "model.traverse(o => { if (o.isMesh) o.material = new THREE.MeshBasicMaterial({ color: 0xE8E8E8 }); });")
         open(os.path.join(rundir, 'preview-stripped.html'), 'w', encoding='utf-8').write(stripped)
+        # 7. solid texture swatches from measured palette colors
+        from PIL import Image as _Img
+        def _hx(hx):
+            hx = hx.lstrip('#')
+            return (int(hx[0:2], 16), int(hx[2:4], 16), int(hx[4:6], 16))
+        spec_now = json.load(open(spec_path, encoding='utf-8'))
+        for m in spec_now['materials']:
+            mid = m['id']
+            d = os.path.join(rundir, f'pbr-{mid}')
+            os.makedirs(d, exist_ok=True)
+            solid = _hx(m['color'])
+            for ch in ('albedo', 'roughness', 'normal', 'height', 'ao'):
+                _Img.new('RGB', (64, 64), solid).save(os.path.join(d, f'{mid}_{ch}.png'))
         results[bid] = 'ok'
     json.dump(results, open('batch-results.json', 'w', encoding='utf-8'), indent=1)
     print('batch done:', results)
